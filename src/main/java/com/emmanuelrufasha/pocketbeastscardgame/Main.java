@@ -28,6 +28,8 @@ public class Main {
      */
     public static void main(String[] args) {
         
+        // --------------------------------------------------------------------- GAME INTRO ---------------------------------------------------------------------
+        
         System.out.println("");
         System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+");
         System.out.println("Welcome to PocketBeasts!");
@@ -60,90 +62,115 @@ public class Main {
         System.out.println("4. Play cards from hand.");
         System.out.println("");
         
-        
-        System.out.println("Press ENTER to Start the Game...");
+        // ---------------------------------------------------------- PLAYER INITIALISATION ----------------------------------------------------------
+
+        System.out.println("> Welcome to PocketBeasts! \n  Press ENTER to continue...");
         Scanner sc = new Scanner(System.in);
         sc.nextLine();
-
-        // Create a new instance of the DeckFactory
-        DeckFactory deckFactory = new DeckFactory();
         
-        // Prompt for the number of players
+        // Prompt for the number of players       
+        int numberOfPlayersParticipating;      
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Welcome to PocketBeasts!");
-        int numberOfPlayersParticipating = scanner.nextInt();
+//        while (true){
+//            System.out.println("> How many players will be participating in this game ? : "); 
+//            if (scanner.hasNextInt()){
+//                numberOfPlayersParticipating = scanner.nextInt();
+//                System.out.println(); // This line will print an empty line
+//                if (numberOfPlayersParticipating > 1){
+//                    break; //valid input, exit the loop here
+//                }
+//                else {
+//                    scanner.next();//clear invalid input
+//                }
+//            } else 
+//            {
+//                 System.out.println("> Invalid input! Please enter a digit greater than 1.");
+//                 scanner.next();//clear invalid input
+//            }
+//            
+//        }  
+//        scanner.nextLine();
         
-        while (true){
-            System.out.println("Enter the number of players participating in this game : "); 
-            if (scanner.hasNextInt()){
+        
+        System.out.println(); // This line will print an empty line
+        while (true) {
+            System.out.println("> How many players will be participating in this game ? : ");
+            if (scanner.hasNextInt()) {
                 numberOfPlayersParticipating = scanner.nextInt();
-                if (numberOfPlayersParticipating > 1){
-                    break; //valid input, exit the loop here
+                System.out.println(""); // This line will print an empty line
+                if (numberOfPlayersParticipating > 1) {
+                    break; // valid input, exit the loop here
+                } else {
+                    System.out.println("> INVALID INPUT! Please enter a digit greater than '1'. \n");
                 }
-                else {
-                    scanner.next();// clear invalid input
-                }
+            } else {
+                System.out.println("\n> INVALID INPUT! Please enter a digit. \n  In addition, ensure that your entry is a digit greater than '1' \n");
+                scanner.next(); // clear invalid input
             }
-            System.out.println("Invalid input! Please enter a digit greater than 1.");
-        }  
+        }
         scanner.nextLine();
         
         
-        List<Player> players = new ArrayList<>(); //Collection of all players playing.
+        
+        
+        // Create a new instance of the DeckFactory
+        DeckFactory deckFactory = new DeckFactory(); 
+        
+        //Collection of all players playing.
+        List<Player> players = new ArrayList<>();
+        
         //Based on how many players playing, ask for their individual names. 
         for (int i = 1; i <= numberOfPlayersParticipating; i++) {
             while (true) {
-                System.out.println("Player " + i + ", enter your name: ");
+                System.out.println("> Player " + i + ", enter your name: ");
                 String playerName = scanner.nextLine();
+                System.out.println(); // This line will print an empty line
                 // Check if the name is valid using a regular expression
                 if (playerName.matches("^[a-zA-Z][a-zA-Z0-9]*$")) {
                     players.add(new Player(playerName, deckFactory.createNewDeck()));
                     break; // valid input, exit the loop
-                }
-                System.out.println("Invalid name! Name cannot start with a symbol or number and cannot contain spaces.");
+                } 
+                System.out.println("> INVALID INPUT! A Name cannot start with a symbol or number and cannot contain spaces.");
             }
         }
         
 
-
-// Add an observer relationship between players
-//        players[0].addObserver(players[1]);  // Player at index 0 observes player at index 1
-//        players[1].addObserver(players[0]);  // Player at index 1 observes player at index 0
-
         // Start the game
-        System.out.println("Let the game begin!");      
-
-        // Create an instance of the AttackStrategy
-        IAttackStrategy attackStrategy = new AttackStrategy();
-        
+        System.out.println("> LET THE GAMES BEGIN... \n  Good Luck!");  
+        System.out.println("\n"); // Print an empty line
+        System.out.println(" ---------------------------------------------------------------------- Initial Game Board ----------------------------------------------------------------------  \n\n"); 
         for (Player player : players) {
             player.newGame();
             System.out.println(player);
         }
+        System.out.println("\n ----------------------------------------------------------------------------------------------------------------------------------------------------------------  \n\n");
         
+
+
+        // Create an instance of the AttackStrategy
+        IAttackStrategy attackStrategy = new AttackStrategy();
+          
         String winningMessage = "";
         Boolean run = true;
         while(run) {
-            for (Player player : players) {
-                // Add mana and draw card
-                player.addMana();
-                player.drawCard();
+        for (Player player : players) {
+            // Add mana and draw card
+            player.addMana();
+            player.drawCard();
+            System.out.println(player); 
 
-                // Print initial play state
-                System.out.println(player);
-
-                // HACK assumes only one other player
-                Player otherPlayer = null;
-                for (Player iPlayer : players) {
-                    if (iPlayer != player) {
-                        otherPlayer = iPlayer;
-                    }
+            // Hack assumes only one other player
+            Player otherPlayer = null;
+            for (Player iPlayer : players) {
+                if (iPlayer != player) {
+                    otherPlayer = iPlayer;
                 }
-                if (otherPlayer == null){
-                    winningMessage = "Something has gone terribly wrong...";
-                    run = false;
-                    break;
-                }
+            }
+            if (otherPlayer == null){
+                winningMessage = "Something has gone terribly wrong...";
+                run = false;
+                break;
+            }
                 
                 // Cycle through cards in play to attack
                 for (ICard card : player.getInPlay().getCards()) {
